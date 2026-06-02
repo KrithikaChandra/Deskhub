@@ -1,0 +1,18 @@
+{
+  "name": "deskhub-project",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "dev": "node server.js",
+     "api": "json-server --watch db.json --port 3001 --delay 200",
+    "serve": "live-server public --port=8080 --no-browser",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "express": "^5.2.1"
+  }
+}
