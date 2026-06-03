@@ -4,15 +4,20 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "dev": "node server.js",
-     "api": "json-server --watch db.json --port 3001 --delay 200",
-    "serve": "live-server public --port=8080 --no-browser",
+    "api": "json-server --watch src/db.json --port 3001",
+    "serve": "live-server . --port=8080 --open=public/index.html --watch=public,src",
+    "dev": "concurrently -n api,web -c blue,green \"npm run api\" \"npm run serve\"",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "express": "^5.2.1"
+    "express": "^5.2.1",
+    "json-server": "^0.17.4"
+  },
+  "devDependencies": {
+    "concurrently": "^9.1.0",
+    "live-server": "^1.2.2"
   }
 }

@@ -90,4 +90,23 @@ margin-top: 12px;
 text-align: center;
 color: #dc2626;
 font-size: 14px;
+min-height: 1.25em;
+}
+
+/* Dashboard placeholder */
+.dashboard-main {
+  text-align: center;
+}
+
+.dashboard-message {
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: #333;
+  margin-bottom: 1.5rem;
+}
+
+#logout-button {
+  width: auto;
+  min-width: 140px;
+  margin-top: 0;
 }

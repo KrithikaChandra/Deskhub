@@ -1,19 +1,44 @@
-<div class="container">
-  <form>
-    <h1>Login</h1>
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>DeskHub — Login</title>
+    <link rel="stylesheet" href="./styles/main.css" />
+  </head>
+  <body data-page="login">
+    <main class="container">
+      <form id="login-form" method="post" action="#" novalidate>
+        <h1>Login</h1>
 
-    <div class="form-group">
-      <label for="email">Email</label>
-      <input id="email" type="email" />
-    </div>
+        <div class="form-group">
+          <label for="email">Email</label>
+          <input
+            id="email"
+            name="email"
+            type="email"
+            autocomplete="email"
+            required
+            aria-describedby="login-error"
+          />
+        </div>
 
-    <div class="form-group">
-      <label for="password">Password</label>
-      <input id="password" type="password" />
-    </div>
+        <div class="form-group">
+          <label for="password">Password</label>
+          <input
+            id="password"
+            name="password"
+            type="password"
+            autocomplete="current-password"
+            required
+            aria-describedby="login-error"
+          />
+        </div>
 
-    <button type="submit">Login</button>
-    <span class="error"></span>
-  </form>
-</div>
-<link rel="stylesheet" href="./styles/main.css" />
+        <button type="submit">Login</button>
+        <p id="login-error" class="error" role="alert" aria-live="polite"></p>
+      </form>
+    </main>
+    <script type="module" src="/src/main.js"></script>
+  </body>
+</html>
