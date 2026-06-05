@@ -2,7 +2,6 @@
 const BASE_URL = "http://localhost:3001";
 
 /**
- * Core request helper used by get/post/patch/del.
  * @param {string} path
  * @param {RequestInit} [options]
  * @returns {Promise<unknown>}
@@ -42,6 +41,36 @@ export async function request(path, options = {}) {
   }
 
   return data;
+}
+
+/**
+ * GET that exposes response headers (e.g. json-server `X-Total-Count` when using `_page` / `_limit`).
+ * @param {string} path
+ * @returns {Promise<{ data: unknown, headers: Headers }>}
+ */
+export async function getWithHeaders(path) {
+  const url = path.startsWith("http") ? path : `${BASE_URL}${path}`;
+  const response = await fetch(url, { method: "GET" });
+
+  const text = await response.text();
+  let data = null;
+  if (text) {
+    try {
+      data = JSON.parse(text);
+    } catch {
+      data = text;
+    }
+  }
+
+  if (!response.ok) {
+    const message =
+      typeof data === "object" && data !== null && "message" in data
+        ? String(data.message)
+        : response.statusText || `Request failed (${response.status})`;
+    throw new Error(message);
+  }
+
+  return { data, headers: response.headers };
 }
 
 /**

@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>DeskHub — Tickets</title>
+    <link rel="stylesheet" href="./styles/main.css" />
+  </head>
+  <body data-page="tickets-list">
+    <a class="skip-link" href="#tickets-main">Skip to tickets</a>
+
+    <header class="app-header">
+      <h1 class="app-header__title">Tickets</h1>
+      <nav class="app-header__nav" aria-label="Primary">
+        <a href="./dashboard.html">Dashboard</a>
+      </nav>
+    </header>
+
+    <main id="tickets-main" class="container container--tickets" tabindex="-1">
+      <section class="tickets-toolbar" aria-label="Search and filters">
+        <div class="tickets-toolbar__search">
+          <label class="tickets-field__label" for="ticket-search">Search</label>
+          <input
+            id="ticket-search"
+            type="search"
+            name="ticket-search"
+            placeholder="Search tickets…"
+            autocomplete="off"
+          />
+        </div>
+        <div class="tickets-toolbar__filters">
+          <div class="tickets-field">
+            <label class="tickets-field__label" for="ticket-status">Status</label>
+            <select id="ticket-status" name="ticket-status">
+              <option value="">All</option>
+              <option value="open">open</option>
+              <option value="in-progress">in-progress</option>
+              <option value="resolved">resolved</option>
+              <option value="closed">closed</option>
+            </select>
+          </div>
+          <div class="tickets-field">
+            <label class="tickets-field__label" for="ticket-priority">Priority</label>
+            <select id="ticket-priority" name="ticket-priority">
+              <option value="">All</option>
+              <option value="low">low</option>
+              <option value="medium">medium</option>
+              <option value="high">high</option>
+              <option value="urgent">urgent</option>
+            </select>
+          </div>
+          <div class="tickets-field">
+            <label class="tickets-field__label" for="ticket-assignee">Assignee</label>
+            <select id="ticket-assignee" name="ticket-assignee">
+              <option value="">All</option>
+            </select>
+          </div>
+          <div class="tickets-field">
+            <label class="tickets-field__label" for="ticket-sort">Sort</label>
+            <select id="ticket-sort" name="ticket-sort">
+              <option value="id">ID (ascending)</option>
+              <option value="priority">Priority</option>
+              <option value="status">Status</option>
+            </select>
+          </div>
+        </div>
+      </section>
+
+      <section class="tickets-list" aria-labelledby="tickets-heading">
+        <h2 id="tickets-heading" class="visually-hidden">Ticket list</h2>
+
+        <div
+          id="tickets-loading"
+          class="tickets-state tickets-state--loading tickets-state--loading-panel"
+          hidden
+        >
+          <span class="tickets-spinner" aria-hidden="true"></span>
+          <span class="tickets-loading-text">Loading tickets…</span>
+        </div>
+
+        <div
+          id="tickets-error-wrap"
+          class="tickets-state tickets-state--error tickets-state--error-panel"
+          hidden
+          role="alert"
+        >
+          <p id="tickets-error-message" class="tickets-error-message"></p>
+          <button type="button" id="tickets-retry" class="tickets-retry-btn">
+            Retry
+          </button>
+        </div>
+
+        <p
+          id="tickets-empty"
+          class="tickets-state tickets-state--empty"
+          hidden
+        >
+          No tickets found.
+        </p>
+
+        <div
+          class="tickets-table-wrap"
+          role="region"
+          aria-label="Tickets table"
+          tabindex="0"
+          id="tickets-table-wrap"
+        >
+          <table class="tickets-table">
+            <caption class="visually-hidden">
+              Support tickets: ID, title, customer, priority, status, assignee,
+              created date
+            </caption>
+            <thead>
+              <tr>
+                <th scope="col">ID</th>
+                <th scope="col">Title</th>
+                <th scope="col">Customer</th>
+                <th scope="col">Priority</th>
+                <th scope="col">Status</th>
+                <th scope="col">Assignee</th>
+                <th scope="col">Created</th>
+              </tr>
+            </thead>
+            <tbody id="tickets-tbody"></tbody>
+          </table>
+        </div>
+
+        <nav
+          id="tickets-pagination"
+          class="tickets-pagination"
+          aria-label="Pagination"
+          hidden
+        >
+          <button type="button" id="tickets-page-prev" class="tickets-page-btn">
+            Prev
+          </button>
+          <div
+            id="tickets-page-numbers"
+            class="tickets-page-numbers"
+            role="group"
+            aria-label="Page numbers"
+          ></div>
+          <button type="button" id="tickets-page-next" class="tickets-page-btn">
+            Next
+          </button>
+        </nav>
+      </section>
+    </main>
+
+    <script type="module" src="/src/main.js"></script>
+  </body>
+</html>
