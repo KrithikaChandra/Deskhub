@@ -1,15 +1,12 @@
 
 import * as authApi from "../api/auth.js";
 
-/**
- * @param {HTMLFormElement} form
- */
 export function initLoginPage(form) {
-  const emailInput = /** @type {HTMLInputElement} */ (form.querySelector("#email"));
-  const passwordInput = /** @type {HTMLInputElement} */ (
+  const emailInput =(form.querySelector("#email"));
+  const passwordInput = (
     form.querySelector("#password")
   );
-  const errorEl = /** @type {HTMLElement} */ (form.querySelector("#login-error"));
+  const errorEl =  (form.querySelector("#login-error"));
 
   form.addEventListener("submit", async (event) => {
     event.preventDefault();

@@ -7,11 +7,47 @@
     <link rel="stylesheet" href="./styles/main.css" />
   </head>
   <body data-page="dashboard">
-    <main class="container dashboard-main">
-      <p class="dashboard-message">You&apos;re in!</p>
-      <a class="dashboard-view-tickets-btn" href="./tickets.html">View tickets</a>
-      <button type="button" id="logout-button">Log out</button>
+    <header class="app-header">
+      <h1 class="app-header__title">Dashboard</h1>
+      <nav class="app-header__nav" aria-label="Primary">
+        <a href="./tickets.html">Tickets</a>
+        <button type="button" id="logout-button" class="button button--secondary">
+          Log out
+        </button>
+      </nav>
+    </header>
+
+    <main class="container container--tickets dashboard-main">
+      <section class="dashboard-stats" aria-label="Ticket stats">
+        <article class="stat-card stat-card--total">
+          <p class="stat-card__label">Total</p>
+          <p id="stat-total" class="stat-card__value">0</p>
+        </article>
+        <article class="stat-card stat-card--open">
+          <p class="stat-card__label">Open</p>
+          <p id="stat-open" class="stat-card__value">0</p>
+        </article>
+        <article class="stat-card stat-card--progress">
+          <p class="stat-card__label">In-Progress</p>
+          <p id="stat-in-progress" class="stat-card__value">0</p>
+        </article>
+        <article class="stat-card stat-card--resolved">
+          <p class="stat-card__label">Resolved</p>
+          <p id="stat-resolved" class="stat-card__value">0</p>
+        </article>
+      </section>
+
+      <section class="dashboard-recent" aria-labelledby="recent-tickets-title">
+        <div class="dashboard-section-header">
+          <h2 id="recent-tickets-title">Recent 5 tickets</h2>
+          <a href="./tickets.html">View all</a>
+        </div>
+        <div id="recent-tickets-list" class="recent-tickets-list"></div>
+        <p id="recent-tickets-empty" class="empty-state" hidden>
+          No recent tickets yet.
+        </p>
+      </section>
     </main>
-    <script type="module" src="/src/main.js"></script>
+    <script type="module" src="../src/main.js"></script>
   </body>
 </html>

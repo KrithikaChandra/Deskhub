@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>DeskHub - Ticket Detail</title>
+    <link rel="stylesheet" href="./styles/main.css" />
+  </head>
+  <body data-page="ticket-detail">
+    <a class="skip-link" href="#ticket-detail-main">Skip to ticket detail</a>
+
+    <header class="app-header">
+      <h1 class="app-header__title">Ticket Detail</h1>
+      <nav class="app-header__nav" aria-label="Primary">
+        <a href="./tickets.html">Tickets</a>
+        <a href="./dashboard.html">Dashboard</a>
+      </nav>
+    </header>
+
+    <main
+      id="ticket-detail-main"
+      class="container container--tickets detail-layout"
+      tabindex="-1"
+    >
+      <section
+        id="ticket-detail-loading"
+        class="tickets-state tickets-state--loading-panel"
+      >
+        <span class="tickets-spinner" aria-hidden="true"></span>
+        <span class="tickets-loading-text">Loading ticket...</span>
+      </section>
+
+      <section
+        id="ticket-detail-error"
+        class="tickets-state tickets-state--error-panel"
+        role="alert"
+        hidden
+      ></section>
+
+      <section id="ticket-detail-content" class="detail-shell" hidden>
+        <div class="detail-shell__header">
+          <div>
+            <p id="ticket-detail-id" class="detail-kicker"></p>
+            <h2 id="ticket-detail-title"></h2>
+          </div>
+          <div class="detail-header-actions">
+            <button
+              type="button"
+              id="ticket-edit"
+              class="button detail-edit"
+            >
+              Edit
+            </button>
+            <button
+              type="button"
+              id="ticket-cancel-edit"
+              class="button button--secondary"
+              hidden
+            >
+              Cancel
+            </button>
+            <button
+              type="button"
+              id="ticket-delete"
+              class="button button--danger detail-delete"
+            >
+              Delete
+            </button>
+          </div>
+        </div>
+
+        <dl class="detail-grid">
+          <div>
+            <dt>Customer</dt>
+            <dd id="ticket-customer"></dd>
+          </div>
+          <div>
+            <dt>Email</dt>
+            <dd id="ticket-email"></dd>
+          </div>
+          <div>
+            <dt>Category</dt>
+            <dd id="ticket-category"></dd>
+          </div>
+          <div>
+            <dt>Created</dt>
+            <dd id="ticket-created"></dd>
+          </div>
+          <div>
+            <dt>Updated</dt>
+            <dd id="ticket-updated"></dd>
+          </div>
+        </dl>
+
+        <div class="detail-controls" aria-label="Ticket actions">
+          <label>
+            Status
+            <select id="detail-status">
+              <option value="open">open</option>
+              <option value="in-progress">in-progress</option>
+              <option value="resolved">resolved</option>
+              <option value="closed">closed</option>
+            </select>
+          </label>
+          <label>
+            Priority
+            <select id="detail-priority">
+              <option value="low">low</option>
+              <option value="medium">medium</option>
+              <option value="high">high</option>
+              <option value="urgent">urgent</option>
+            </select>
+          </label>
+          <label>
+            Assignee
+            <select id="detail-assignee"></select>
+          </label>
+        </div>
+
+        <section class="detail-description" aria-labelledby="description-title">
+          <h3 id="description-title">Description</h3>
+          <p id="ticket-description"></p>
+        </section>
+
+        <section class="comments-shell" aria-labelledby="comments-title">
+          <h3 id="comments-title">Comments</h3>
+          <div id="ticket-comments" class="comments-list"></div>
+          <form id="comment-form" class="comment-form" novalidate>
+            <label for="comment-content">Add a comment</label>
+            <textarea
+              id="comment-content"
+              name="content"
+              rows="4"
+              maxlength="600"
+              placeholder="Write an update for this ticket"
+              required
+            ></textarea>
+            <p id="comment-error" class="field-error" role="alert"></p>
+            <button type="submit" id="comment-submit" class="button">
+              Add comment
+            </button>
+          </form>
+        </section>
+      </section>
+    </main>
+
+    <script type="module" src="../src/main.js"></script>
+  </body>
+</html>

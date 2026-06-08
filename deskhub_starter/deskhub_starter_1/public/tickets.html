@@ -28,6 +28,12 @@
             autocomplete="off"
           />
         </div>
+        <button type="button" id="new-ticket-button" class="button tickets-new-btn">
+          New Ticket
+        </button>
+        <button type="button" id="tickets-export-csv" class="button button--secondary tickets-export-btn">
+          Export CSV
+        </button>
         <div class="tickets-toolbar__filters">
           <div class="tickets-field">
             <label class="tickets-field__label" for="ticket-status">Status</label>
@@ -58,7 +64,8 @@
           <div class="tickets-field">
             <label class="tickets-field__label" for="ticket-sort">Sort</label>
             <select id="ticket-sort" name="ticket-sort">
-              <option value="id">ID (ascending)</option>
+              <option value="id">Default</option>
+              <option value="newest">Newest</option>
               <option value="priority">Priority</option>
               <option value="status">Status</option>
             </select>
@@ -147,6 +154,6 @@
       </section>
     </main>
 
-    <script type="module" src="/src/main.js"></script>
+    <script type="module" src="../src/main.js"></script>
   </body>
 </html>

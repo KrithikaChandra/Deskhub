@@ -1,9 +1,12 @@
 import { initLoginPage } from "./modules/auth.js";
 import { initDashboardPage } from "./modules/dashboard.js";
 import { initTicketsList } from "./modules/tickets.js";
+import { initTicketDetail } from "./modules/ticketDetail.js";
+import { initThemeToggle } from "./modules/ui.js";
 import * as authApi from "./api/auth.js";
 
 const page = document.body.dataset.page;
+initThemeToggle();
 
 if (page === "login") {
   const form = document.querySelector("#login-form");
@@ -22,5 +25,11 @@ if (page === "login") {
     window.location.replace(new URL("./index.html", window.location.href).href);
   } else {
     initTicketsList();
+  }
+} else if (page === "ticket-detail") {
+  if (!authApi.isAuthenticated()) {
+    window.location.replace(new URL("./index.html", window.location.href).href);
+  } else {
+    initTicketDetail();
   }
 }

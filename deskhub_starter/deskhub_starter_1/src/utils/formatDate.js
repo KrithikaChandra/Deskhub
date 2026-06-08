@@ -34,13 +34,7 @@ export function formatDate(value, locale = "en-GB", timeZone) {
   }).format(date);
 }
 
-/**
- * Date and time of day.
- * @param {unknown} value
- * @param {string} [locale]
- * @param {string} [timeZone]
- * @returns {string}
- */
+
 export function formatDateTime(value, locale, timeZone) {
   const date = toDate(value);
   if (!date) return "—";

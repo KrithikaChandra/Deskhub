@@ -5,10 +5,7 @@ function namespacedKey(key) {
   return `${PREFIX}${key}`;
 }
 
-/**
- * @param {string} key
- * @returns {unknown}
- */
+
 export function get(key) {
   const raw = localStorage.getItem(namespacedKey(key));
   if (raw === null) return null;
@@ -19,18 +16,11 @@ export function get(key) {
   }
 }
 
-/**
- * @param {string} key
- * @param {unknown} value
- */
 export function set(key, value) {
   localStorage.setItem(namespacedKey(key), JSON.stringify(value));
 }
 
-/**
- * Remove one namespaced key (e.g. only token, or only user).
- * @param {string} key
- */
+
 export function remove(key) {
   localStorage.removeItem(namespacedKey(key));
 }

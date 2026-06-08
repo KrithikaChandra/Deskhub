@@ -7,6 +7,8 @@ import * as usersApi from "../api/users.js";
 import * as authApi from "../api/auth.js";
 import { formatDate } from "../utils/formatDate.js";
 import { debounce } from "../utils/debounce.js";
+import { validators, validateField, validateForm } from "./form.js";
+import { openModal, toast } from "./ui.js";
 
 /** @typedef {{ id?: number, title?: string, status?: string, priority?: string, customerName?: string, assignedTo?: number | null, createdAt?: string }} Ticket */
 
@@ -20,7 +22,7 @@ export const ticketsListState = {
   page: 1,
   onlyMine: false,
   assigneeId: /** @type {number | null} */ (null),
-  sort: /** @type {"id" | "priority" | "status"} */ ("id"),
+  sort: /** @type {"id" | "newest" | "priority" | "status"} */ ("id"),
 };
 
 const debouncedRefresh = debounce(() => {
@@ -29,13 +31,47 @@ const debouncedRefresh = debounce(() => {
 }, 300);
 
 function syncOnlyMineFromUrl() {
-  const mine = new URLSearchParams(window.location.search).get("mine");
+  const params = new URLSearchParams(window.location.search);
+  const mine = params.get("mine");
   ticketsListState.onlyMine = mine === "1";
+  ticketsListState.search = params.get("q") ?? "";
+  ticketsListState.status = params.get("status") ?? "";
+  ticketsListState.priority = params.get("priority") ?? "";
+  const page = Number(params.get("page") ?? "1");
+  ticketsListState.page = Number.isFinite(page) && page > 0 ? page : 1;
+
+  const sort = params.get("sort");
+  if (sort === "priority" || sort === "status" || sort === "id" || sort === "newest") {
+    ticketsListState.sort = sort;
+  }
+
+  const assignee = params.get("assignee");
+  ticketsListState.assigneeId =
+    assignee && Number.isFinite(Number(assignee)) ? Number(assignee) : null;
+}
+
+function writeUrlState() {
+  const params = new URLSearchParams();
+  if (ticketsListState.search.trim()) params.set("q", ticketsListState.search.trim());
+  if (ticketsListState.status) params.set("status", ticketsListState.status);
+  if (ticketsListState.priority) params.set("priority", ticketsListState.priority);
+  if (ticketsListState.sort !== "id") params.set("sort", ticketsListState.sort);
+  if (ticketsListState.page > 1) params.set("page", String(ticketsListState.page));
+  if (ticketsListState.onlyMine) {
+    params.set("mine", "1");
+  } else if (ticketsListState.assigneeId != null) {
+    params.set("assignee", String(ticketsListState.assigneeId));
+  }
+
+  const qs = params.toString();
+  const nextUrl = `${window.location.pathname}${qs ? `?${qs}` : ""}`;
+  window.history.replaceState(null, "", nextUrl);
 }
 
 /** json-server `_sort` / `_order` (sort applies server-side with pagination). */
 function serverSortParams() {
   const s = ticketsListState.sort;
+  if (s === "newest") return { _sort: "createdAt", _order: "desc" };
   if (s === "priority") return { _sort: "priority", _order: "asc" };
   if (s === "status") return { _sort: "status", _order: "asc" };
   return { _sort: "id", _order: "asc" };
@@ -86,6 +122,8 @@ let statusSelectEl = null;
 let prioritySelectEl = null;
 let assigneeSelectEl = null;
 let sortSelectEl = null;
+let newTicketBtn = null;
+let exportCsvBtn = null;
 
 let tbodyEl = null;
 let tableWrapEl = null;
@@ -99,6 +137,39 @@ let paginationEl = null;
 let prevPageBtn = null;
 let nextPageBtn = null;
 let pageNumbersEl = null;
+
+const createTicketSchema = {
+  title: [
+    validators.required("Title is required."),
+    validators.minLength(5, "Title must be at least 5 characters."),
+    validators.maxLength(120, "Title must be 120 characters or fewer."),
+  ],
+  description: [
+    validators.required("Description is required."),
+    validators.minLength(10, "Description must be at least 10 characters."),
+    validators.maxLength(800, "Description must be 800 characters or fewer."),
+  ],
+  customerName: [
+    validators.required("Customer name is required."),
+    validators.maxLength(80, "Customer name must be 80 characters or fewer."),
+  ],
+  customerEmail: [
+    validators.required("Customer email is required."),
+    validators.email(),
+  ],
+  category: [
+    validators.required("Category is required."),
+    validators.oneOf(["auth", "billing", "bug", "feature"]),
+  ],
+  priority: [
+    validators.required("Priority is required."),
+    validators.oneOf(["low", "medium", "high", "urgent"]),
+  ],
+  status: [
+    validators.required("Status is required."),
+    validators.oneOf(["open", "in-progress", "resolved", "closed"]),
+  ],
+};
 
 async function ensureUsersCached() {
   if (assigneeNameByUserId !== null) return;
@@ -188,6 +259,8 @@ function wireToolbar() {
   if (searchInputEl) {
     searchInputEl.addEventListener("input", () => {
       ticketsListState.search = searchInputEl.value;
+      ticketsListState.page = 1;
+      writeUrlState();
       debouncedRefresh();
     });
   }
@@ -196,6 +269,7 @@ function wireToolbar() {
     statusSelectEl.addEventListener("change", () => {
       ticketsListState.status = statusSelectEl.value;
       ticketsListState.page = 1;
+      writeUrlState();
       void refresh();
     });
   }
@@ -204,6 +278,7 @@ function wireToolbar() {
     prioritySelectEl.addEventListener("change", () => {
       ticketsListState.priority = prioritySelectEl.value;
       ticketsListState.page = 1;
+      writeUrlState();
       void refresh();
     });
   }
@@ -213,6 +288,7 @@ function wireToolbar() {
       const v = assigneeSelectEl.value;
       ticketsListState.assigneeId = v === "" ? null : Number(v);
       ticketsListState.page = 1;
+      writeUrlState();
       void refresh();
     });
   }
@@ -220,10 +296,11 @@ function wireToolbar() {
   if (sortSelectEl) {
     sortSelectEl.addEventListener("change", () => {
       const v = sortSelectEl.value;
-      if (v === "priority" || v === "status" || v === "id") {
+      if (v === "priority" || v === "status" || v === "id" || v === "newest") {
         ticketsListState.sort = v;
       }
       ticketsListState.page = 1;
+      writeUrlState();
       void refresh();
     });
   }
@@ -234,12 +311,14 @@ function wirePagination() {
     prevPageBtn.addEventListener("click", () => {
       if (ticketsListState.page <= 1) return;
       ticketsListState.page -= 1;
+      writeUrlState();
       void refresh();
     });
   }
   if (nextPageBtn) {
     nextPageBtn.addEventListener("click", () => {
       ticketsListState.page += 1;
+      writeUrlState();
       void refresh();
     });
   }
@@ -288,6 +367,7 @@ function renderPagination(totalCount) {
     btn.addEventListener("click", () => {
       if (ticketsListState.page !== p) {
         ticketsListState.page = p;
+        writeUrlState();
         void refresh();
       }
     });
@@ -306,6 +386,10 @@ export function renderTable(tickets) {
   for (const raw of tickets) {
     const t = /** @type {Ticket} */ (raw);
     const tr = document.createElement("tr");
+    tr.className = "tickets-table__row";
+    tr.tabIndex = 0;
+    tr.setAttribute("role", "link");
+    tr.setAttribute("aria-label", `Open ticket ${t.id ?? ""}`);
 
     const tdId = document.createElement("td");
     tdId.textContent = t.id != null ? String(t.id) : "—";
@@ -337,10 +421,309 @@ export function renderTable(tickets) {
       tdAssignee,
       tdCreated
     );
+
+    tr.addEventListener("click", () => {
+      if (t.id != null) {
+        window.location.href = new URL(
+          `./ticket-detail.html?id=${encodeURIComponent(String(t.id))}`,
+          window.location.href
+        ).href;
+      }
+    });
+    tr.addEventListener("keydown", (event) => {
+      if ((event.key === "Enter" || event.key === " ") && t.id != null) {
+        event.preventDefault();
+        window.location.href = new URL(
+          `./ticket-detail.html?id=${encodeURIComponent(String(t.id))}`,
+          window.location.href
+        ).href;
+      }
+    });
+
     frag.appendChild(tr);
   }
 
   tbodyEl.replaceChildren(frag);
+}
+
+function csvCell(value) {
+  const text = String(value ?? "");
+  return `"${text.replace(/"/g, '""')}"`;
+}
+
+function downloadCsv(filename, content) {
+  const blob = new Blob([content], { type: "text/csv;charset=utf-8" });
+  const url = URL.createObjectURL(blob);
+  const link = document.createElement("a");
+  link.href = url;
+  link.download = filename;
+  document.body.appendChild(link);
+  link.click();
+  link.remove();
+  URL.revokeObjectURL(url);
+}
+
+async function exportCurrentTicketsCsv() {
+  if (!(exportCsvBtn instanceof HTMLButtonElement)) return;
+
+  try {
+    exportCsvBtn.disabled = true;
+    await ensureUsersCached();
+    const { items } = await ticketsApi.fetchTicketsPage({
+      ...listFilterParams(),
+      ...serverSortParams(),
+      _page: 1,
+      _limit: 10000,
+    });
+
+    if (!items.length) {
+      toast("No tickets to export.", "error");
+      return;
+    }
+
+    const header = [
+      "ID",
+      "Title",
+      "Customer",
+      "Customer Email",
+      "Priority",
+      "Status",
+      "Assignee",
+      "Category",
+      "Created",
+      "Updated",
+    ];
+    const lines = [
+      header.map(csvCell).join(","),
+      ...items.map((raw) => {
+        const ticket = /** @type {Ticket & Record<string, unknown>} */ (raw);
+        return [
+          ticket.id,
+          ticket.title,
+          ticket.customerName,
+          ticket.customerEmail,
+          ticket.priority,
+          ticket.status,
+          assigneeLabel(ticket.assignedTo),
+          ticket.category,
+          ticket.createdAt,
+          ticket.updatedAt,
+        ].map(csvCell).join(",");
+      }),
+    ];
+
+    downloadCsv(
+      `deskhub-tickets-${new Date().toISOString().slice(0, 10)}.csv`,
+      lines.join("\r\n")
+    );
+    toast("CSV exported.");
+  } catch (err) {
+    toast(err instanceof Error ? err.message : "Could not export CSV.", "error");
+  } finally {
+    exportCsvBtn.disabled = false;
+  }
+}
+
+function createField({ label, name, type = "text", options, textarea = false }) {
+  const group = document.createElement("div");
+  group.className = "form-group";
+
+  const labelEl = document.createElement("label");
+  labelEl.setAttribute("for", `new-ticket-${name}`);
+  labelEl.textContent = label;
+
+  let field;
+  if (options) {
+    field = document.createElement("select");
+    for (const optionInfo of options) {
+      const option = document.createElement("option");
+      option.value = optionInfo.value;
+      option.textContent = optionInfo.label;
+      field.appendChild(option);
+    }
+  } else if (textarea) {
+    field = document.createElement("textarea");
+    field.rows = 4;
+  } else {
+    field = document.createElement("input");
+    field.type = type;
+  }
+
+  field.id = `new-ticket-${name}`;
+  field.name = name;
+  field.setAttribute("aria-describedby", `new-ticket-${name}-error`);
+
+  const error = document.createElement("p");
+  error.id = `new-ticket-${name}-error`;
+  error.className = "field-error";
+  error.setAttribute("role", "alert");
+
+  group.append(labelEl, field, error);
+  return group;
+}
+
+function setFieldError(form, name, message) {
+  const field = form.elements.namedItem(name);
+  const errorEl = form.querySelector(`#new-ticket-${name}-error`);
+  if (
+    !(field instanceof HTMLInputElement) &&
+    !(field instanceof HTMLTextAreaElement) &&
+    !(field instanceof HTMLSelectElement)
+  ) {
+    return;
+  }
+
+  field.setAttribute("aria-invalid", message ? "true" : "false");
+  if (errorEl) errorEl.textContent = message;
+}
+
+function updateCreateSubmitState(form, submitBtn) {
+  const result = validateForm(form, createTicketSchema);
+  submitBtn.disabled = !result.isValid;
+}
+
+async function showCreateTicketModal() {
+  try {
+    await ensureUsersCached();
+  } catch {
+    toast("Could not load assignees. You can still create the ticket.", "error");
+  }
+
+  const assigneeOptions = [
+    { value: "", label: "Unassigned" },
+    ...[...(assigneeNameByUserId?.entries() ?? [])]
+      .sort((a, b) => a[1].localeCompare(b[1], undefined, { sensitivity: "base" }))
+      .map(([id, name]) => ({ value: String(id), label: name })),
+  ];
+
+  const form = document.createElement("form");
+  form.className = "ticket-create-form";
+  form.noValidate = true;
+
+  form.append(
+    createField({ label: "Title", name: "title" }),
+    createField({ label: "Description", name: "description", textarea: true }),
+    createField({ label: "Customer name", name: "customerName" }),
+    createField({ label: "Customer email", name: "customerEmail", type: "email" }),
+    createField({
+      label: "Category",
+      name: "category",
+      options: [
+        { value: "", label: "Choose category" },
+        { value: "auth", label: "auth" },
+        { value: "billing", label: "billing" },
+        { value: "bug", label: "bug" },
+        { value: "feature", label: "feature" },
+      ],
+    }),
+    createField({
+      label: "Priority",
+      name: "priority",
+      options: [
+        { value: "medium", label: "medium" },
+        { value: "low", label: "low" },
+        { value: "high", label: "high" },
+        { value: "urgent", label: "urgent" },
+      ],
+    }),
+    createField({
+      label: "Status",
+      name: "status",
+      options: [
+        { value: "open", label: "open" },
+        { value: "in-progress", label: "in-progress" },
+        { value: "resolved", label: "resolved" },
+        { value: "closed", label: "closed" },
+      ],
+    }),
+    createField({
+      label: "Assignee",
+      name: "assignedTo",
+      options: assigneeOptions,
+    })
+  );
+
+  const actions = document.createElement("div");
+  actions.className = "modal-actions";
+
+  const cancelBtn = document.createElement("button");
+  cancelBtn.type = "button";
+  cancelBtn.className = "button button--secondary";
+  cancelBtn.textContent = "Cancel";
+
+  const submitBtn = document.createElement("button");
+  submitBtn.type = "submit";
+  submitBtn.className = "button";
+  submitBtn.textContent = "Create Ticket";
+  submitBtn.disabled = true;
+
+  actions.append(cancelBtn, submitBtn);
+  form.append(actions);
+
+  const modal = openModal({ title: "New Ticket", content: form });
+  cancelBtn.addEventListener("click", modal.close);
+
+  for (const [name, rules] of Object.entries(createTicketSchema)) {
+    const field = form.elements.namedItem(name);
+    if (
+      !(field instanceof HTMLInputElement) &&
+      !(field instanceof HTMLTextAreaElement) &&
+      !(field instanceof HTMLSelectElement)
+    ) {
+      continue;
+    }
+
+    field.addEventListener("blur", () => {
+      setFieldError(form, name, validateField(field, rules));
+      updateCreateSubmitState(form, submitBtn);
+    });
+    field.addEventListener("change", () => {
+      updateCreateSubmitState(form, submitBtn);
+    });
+    field.addEventListener("input", () => {
+      updateCreateSubmitState(form, submitBtn);
+    });
+  }
+
+  form.addEventListener("submit", async (event) => {
+    event.preventDefault();
+    const result = validateForm(form, createTicketSchema);
+    for (const [name] of Object.entries(createTicketSchema)) {
+      setFieldError(form, name, result.errors[name] ?? "");
+    }
+    submitBtn.disabled = !result.isValid;
+    if (!result.isValid) return;
+
+    const data = new FormData(form);
+    const now = new Date().toISOString();
+    const rawAssignee = String(data.get("assignedTo") ?? "");
+    const assignedTo = rawAssignee === "" ? null : Number(rawAssignee);
+    const ticket = {
+      title: String(data.get("title") ?? "").trim(),
+      description: String(data.get("description") ?? "").trim(),
+      customerName: String(data.get("customerName") ?? "").trim(),
+      customerEmail: String(data.get("customerEmail") ?? "").trim(),
+      category: String(data.get("category") ?? ""),
+      priority: String(data.get("priority") ?? "medium"),
+      status: String(data.get("status") ?? "open"),
+      assignedTo: Number.isFinite(assignedTo) ? assignedTo : null,
+      createdAt: now,
+      updatedAt: now,
+    };
+
+    try {
+      submitBtn.disabled = true;
+      await ticketsApi.createTicket(ticket);
+      modal.close();
+      ticketsListState.page = 1;
+      writeUrlState();
+      await refresh();
+      toast("Ticket created.");
+    } catch (err) {
+      submitBtn.disabled = false;
+      toast(err instanceof Error ? err.message : "Could not create ticket.", "error");
+    }
+  });
 }
 
 function friendlyFetchError(err) {
@@ -391,6 +774,7 @@ export async function refresh() {
         Math.max(1, ticketsListState.page),
         totalPages
       );
+      writeUrlState();
       params = listApiParams();
       ({ items, totalCount } = await ticketsApi.fetchTicketsPage(params));
     }
@@ -451,6 +835,8 @@ export function initTicketsList() {
   prioritySelectEl = document.querySelector("#ticket-priority");
   assigneeSelectEl = document.querySelector("#ticket-assignee");
   sortSelectEl = document.querySelector("#ticket-sort");
+  newTicketBtn = document.querySelector("#new-ticket-button");
+  exportCsvBtn = document.querySelector("#tickets-export-csv");
 
   tbodyEl = document.querySelector("#tickets-tbody");
   tableWrapEl = document.querySelector("#tickets-table-wrap");
@@ -484,6 +870,14 @@ export function initTicketsList() {
   retryBtn.addEventListener("click", () => {
     void refresh();
   });
+  if (newTicketBtn instanceof HTMLButtonElement) {
+    newTicketBtn.addEventListener("click", showCreateTicketModal);
+  }
+  if (exportCsvBtn instanceof HTMLButtonElement) {
+    exportCsvBtn.addEventListener("click", () => {
+      void exportCurrentTicketsCsv();
+    });
+  }
 
   void bootstrap();
 }

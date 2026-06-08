@@ -1,0 +1,6 @@
+# Used when Netlify runs a build from this folder (Git deploy).
+# Publish the prepared static output (includes public + src for /src/main.js).
+
+[build]
+  publish = "netlify_deploy"
+  command = "npm run build:netlify"

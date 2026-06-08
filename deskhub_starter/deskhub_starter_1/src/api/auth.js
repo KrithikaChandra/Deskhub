@@ -16,7 +16,7 @@ function makeSessionToken(userId) {
 
 export async function login(email, password) {
   const query = new URLSearchParams({ email, password }).toString();
-  const users = /** @type {any} */ (await client.get(`/users?${query}`));
+  const users =  (await client.get(`/users?${query}`));
 
   if (!Array.isArray(users) || users.length !== 1) {
     throw new Error("Invalid email or password.");

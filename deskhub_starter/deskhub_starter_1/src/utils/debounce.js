@@ -14,7 +14,7 @@ export function debounce(fn, delay) {
   /** @type {ReturnType<typeof setTimeout> | null} */
   let timerId = null;
 
-  return /** @type {T} */ (
+  return (
     function (...args) {
       if (timerId != null) clearTimeout(timerId);
       const ctx = this;
