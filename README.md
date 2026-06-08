@@ -26,7 +26,6 @@ Checkout the website using the link : https://deskhubtickets.netlify.app/ or
    Password: demo123
    ```
 
-Please click on the link to login to your account : https://krithikachandra.github.io/Deskhub/deskhub_starter/deskhub_starter_1/public/
 
 ## Screenshots
 
