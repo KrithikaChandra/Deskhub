@@ -1,7 +1,8 @@
-# DeskHub Tickets
+# DeskHub
 
-DeskHub Tickets is a small helpdesk ticketing app built with plain HTML, CSS, and JavaScript. It supports login, dashboard stats, ticket listing, filters, pagination, detail view, comments, create/edit/delete flows, dark mode, and CSV export.
+DeskHub is a small helpdesk ticketing app built with plain HTML, CSS, and JavaScript. It supports login, dashboard stats, ticket listing, filters, pagination, detail view, comments, create/edit/delete flows, dark mode, and CSV export.
 
+Checkout th ewebsite using the link : https://deskhubtickets.netlify.app/ or https://krithikachandra.github.io/Deskhub/deskhub_starter/deskhub_starter_1/public/
 ## Setup
 
 1. Install dependencies:
