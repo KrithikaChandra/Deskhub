@@ -29,15 +29,16 @@ DeskHub Tickets is a small helpdesk ticketing app built with plain HTML, CSS, an
 
 ## Login Page
 
-![Login Page](./screenshots/login-page.png)
+![Login Page](./src/screenshots/login_page.png.png)
 
-## Dashboard List
+## Dashboard Page
 
-![Dashboard](./screenshots/dashboard.png)
+![Dashboard](./src/screenshots/dashboard.png.png)
 
-## Create Ticket
+## Tickets List Page
 
-![Ticket List](./screenshots/tickets_page.png)
+![Ticket List](./src/screenshots/tickets_page.png.png)
+
 
 
 ## Main Features
