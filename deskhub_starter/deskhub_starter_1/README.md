@@ -13,16 +13,10 @@ DeskHub Tickets is a small helpdesk ticketing app built with plain HTML, CSS, an
 2. Start the local app:
 
    ```bash
-   npm start
+   npm run dev
    ```
 
-3. Open the app:
-
-   ```text
-   http://localhost:3001/
-   ```
-
-4. Log in with the demo account:
+3. Log in with the demo account:
 
    ```text
    Email: priya@deskhub.in
@@ -31,21 +25,20 @@ DeskHub Tickets is a small helpdesk ticketing app built with plain HTML, CSS, an
 
 ## Screenshots
 
+# DeskHub Ticket Management System
 
+## Login Page
 
-Suggested screenshots:
+![Login Page](./screenshots/login-page.png)
 
-- Dashboard page with the four status cards and recent tickets.
-- Tickets list with filters, search, dark mode, and CSV export.
-- Ticket detail page showing ticket fields, edit controls, and comments.
+## Dashboard List
 
-Example Markdown format:
+![Dashboard](./screenshots/dashboard.png)
 
-```md
-![Dashboard](./docs/screenshots/dashboard.png)
-![Tickets list](./docs/screenshots/tickets-list.png)
-![Ticket detail](./docs/screenshots/ticket-detail.png)
-```
+## Create Ticket
+
+![Ticket List](./screenshots/tickets_page.png)
+
 
 ## Main Features
 
