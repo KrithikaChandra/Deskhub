@@ -6,6 +6,7 @@ import { confirmDialog, hideFullScreenLoader, showFullScreenLoader, toast } from
 
 const STATUS_OPTIONS = ["open", "in-progress", "resolved", "closed"];
 const PRIORITY_OPTIONS = ["low", "medium", "high", "urgent"];
+const DELETE_REDIRECT_KEY = "deskhub:delete-redirect";
 
 let ticketId = null;
 let currentTicket = null;
@@ -15,6 +16,82 @@ let isEditMode = false;
 
 function byId(id) {
   return document.querySelector(`#${id}`);
+}
+
+function wait(ms) {
+  return new Promise((resolve) => {
+    window.setTimeout(resolve, ms);
+  });
+}
+
+function saveDeleteRedirect(url) {
+  window.sessionStorage.setItem(
+    DELETE_REDIRECT_KEY,
+    JSON.stringify({ url, startedAt: Date.now() })
+  );
+}
+
+function readDeleteRedirect() {
+  const raw = window.sessionStorage.getItem(DELETE_REDIRECT_KEY);
+  if (!raw) return null;
+
+  try {
+    const parsed = JSON.parse(raw);
+    if (
+      parsed &&
+      typeof parsed.url === "string" &&
+      typeof parsed.startedAt === "number"
+    ) {
+      return parsed;
+    }
+  } catch {
+    /* clear malformed redirect state below */
+  }
+
+  window.sessionStorage.removeItem(DELETE_REDIRECT_KEY);
+  return null;
+}
+
+function continueDeleteRedirectIfNeeded() {
+  const pending = readDeleteRedirect();
+  if (!pending) return false;
+
+  showDeleteRedirectLoader();
+  const elapsed = Date.now() - pending.startedAt;
+  const remaining = Math.max(0, 3000 - elapsed);
+
+  window.setTimeout(() => {
+    window.sessionStorage.removeItem(DELETE_REDIRECT_KEY);
+    window.location.replace(pending.url);
+  }, remaining);
+
+  return true;
+}
+
+function showDeleteRedirectLoader() {
+  const existing = document.querySelector("#ticket-delete-loader");
+  if (existing instanceof HTMLElement) existing.remove();
+
+  const overlay = document.createElement("div");
+  overlay.id = "ticket-delete-loader";
+  overlay.className =
+    "position-fixed top-0 start-0 w-100 h-100 d-flex align-items-center justify-content-center bg-dark bg-opacity-75";
+  overlay.style.zIndex = "9999";
+  overlay.setAttribute("role", "status");
+  overlay.setAttribute("aria-live", "polite");
+  overlay.innerHTML = `
+    <div class="text-center text-white">
+      <div class="spinner-border text-light mb-3" role="status">
+        <span class="visually-hidden">Loading...</span>
+      </div>
+      <p class="fs-5 mb-0">Deleting ticket...</p>
+    </div>
+  `;
+  document.body.appendChild(overlay);
+}
+
+function isNotFoundError(err) {
+  return err instanceof Error && err.message.toLowerCase().includes("not found");
 }
 
 function userName(id) {
@@ -230,11 +307,26 @@ function wireActions() {
       );
       if (!confirmed || !ticketId) return;
 
+      const ticketsListUrl = new URL("./tickets.html", window.location.href).href;
+
       try {
-        await ticketsApi.deleteTicket(ticketId);
+        deleteBtn.disabled = true;
+        saveDeleteRedirect(ticketsListUrl);
+        showDeleteRedirectLoader();
+        await Promise.all([
+          ticketsApi.deleteTicket(ticketId).catch((err) => {
+            if (!isNotFoundError(err)) throw err;
+          }),
+          wait(3000),
+        ]);
         toast("Ticket deleted.");
-        window.location.href = new URL("./tickets.html", window.location.href).href;
+        window.sessionStorage.removeItem(DELETE_REDIRECT_KEY);
+        window.location.replace(ticketsListUrl);
       } catch (err) {
+        deleteBtn.disabled = false;
+        window.sessionStorage.removeItem(DELETE_REDIRECT_KEY);
+        const loader = document.querySelector("#ticket-delete-loader");
+        if (loader instanceof HTMLElement) loader.remove();
         toast(err instanceof Error ? err.message : "Could not delete ticket.", "error");
       }
     });
@@ -300,6 +392,8 @@ function wireActions() {
 }
 
 export async function initTicketDetail() {
+  if (continueDeleteRedirectIfNeeded()) return;
+
   const id = new URLSearchParams(window.location.search).get("id");
   if (!id) {
     showError("Missing ticket id.");

@@ -879,5 +879,16 @@ export function initTicketsList() {
     });
   }
 
+  if (sessionStorage.getItem("deskhub:open-tickets-loading") === "1") {
+    sessionStorage.removeItem("deskhub:open-tickets-loading");
+    setViewState({
+      loading: true,
+      error: null,
+      empty: false,
+      table: false,
+      hidePagination: true,
+    });
+  }
+
   void bootstrap();
 }

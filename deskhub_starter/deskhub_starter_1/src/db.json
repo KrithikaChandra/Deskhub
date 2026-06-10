@@ -38,58 +38,6 @@
   ],
   "tickets": [
     {
-      "id": 1,
-      "title": "Cannot login to mobile app on iOS",
-      "description": "App throws 'Network error' on every login attempt. Reinstall did not help.",
-      "status": "open",
-      "priority": "urgent",
-      "category": "auth",
-      "customerName": "Rohit Verma",
-      "customerEmail": "rohit.v@gmail.com",
-      "assignedTo": 2,
-      "createdAt": "2026-05-07T09:14:00Z",
-      "updatedAt": "2026-05-07T09:14:00Z"
-    },
-    {
-      "id": 2,
-      "title": "Subscription renewal failed for January",
-      "description": "Card was charged but plan still shows expired. Have screenshot of charge.",
-      "status": "open",
-      "priority": "high",
-      "category": "billing",
-      "customerName": "Sneha Iyer",
-      "customerEmail": "sneha.iyer@outlook.com",
-      "assignedTo": 4,
-      "createdAt": "2026-05-06T15:42:00Z",
-      "updatedAt": "2026-05-06T15:42:00Z"
-    },
-    {
-      "id": 3,
-      "title": "Dashboard graph not loading on Safari",
-      "description": "Works on Chrome and Firefox. Safari shows blank chart area, no console errors.",
-      "status": "in-progress",
-      "priority": "medium",
-      "category": "bug",
-      "customerName": "Vikram Reddy",
-      "customerEmail": "vikram@xyz.co.in",
-      "assignedTo": 3,
-      "createdAt": "2026-05-05T11:20:00Z",
-      "updatedAt": "2026-05-07T08:00:00Z"
-    },
-    {
-      "id": 4,
-      "title": "Request: dark mode for the admin panel",
-      "description": "Whole team works late hours. White admin panel is rough on the eyes.",
-      "status": "open",
-      "priority": "low",
-      "category": "feature",
-      "customerName": "Aditi Joshi",
-      "customerEmail": "aditi.j@protonmail.com",
-      "assignedTo": null,
-      "createdAt": "2026-05-04T18:05:00Z",
-      "updatedAt": "2026-05-04T18:05:00Z"
-    },
-    {
       "id": 5,
       "title": "Wrong invoice amount for order #4521",
       "description": "Invoice shows ₹47,200 but actual order was ₹42,700. Missing discount?",
@@ -285,19 +233,6 @@
       "updatedAt": "2026-04-27T15:10:00Z"
     },
     {
-      "id": 20,
-      "title": "Mobile app freezes on launch",
-      "description": "Splash screen shows for 5 seconds, then app becomes unresponsive. Force-quit needed.",
-      "status": "resolved",
-      "priority": "urgent",
-      "category": "bug",
-      "customerName": "Harshit Mehra",
-      "customerEmail": "harshit@gmail.com",
-      "assignedTo": 3,
-      "createdAt": "2026-05-07T11:45:00Z",
-      "updatedAt": "2026-06-08T14:08:06.857Z"
-    },
-    {
       "id": 21,
       "title": "Cannot delete archived projects",
       "description": "Delete button disabled even with admin role. Tooltip says 'insufficient permissions'.",
@@ -402,19 +337,6 @@
       "updatedAt": "2026-05-05T09:45:00Z"
     },
     {
-      "id": 29,
-      "title": "Login page loops back after submit",
-      "description": "Enter creds, click login, page reloads to login. No error message anywhere.",
-      "status": "open",
-      "priority": "urgent",
-      "category": "auth",
-      "customerName": "Manish Aggarwal",
-      "customerEmail": "manish@trading.in",
-      "assignedTo": 2,
-      "createdAt": "2026-05-07T07:55:00Z",
-      "updatedAt": "2026-05-07T07:55:00Z"
-    },
-    {
       "id": 30,
       "title": "Slow page load on tickets dashboard",
       "description": "Takes 8-10 seconds to render. Used to be 2-3 seconds. Started after last release.",
@@ -429,27 +351,6 @@
     }
   ],
   "comments": [
-    {
-      "id": 1,
-      "ticketId": 1,
-      "authorId": 2,
-      "content": "Hi Rohit, can you share your iOS version and app build number? Also try toggling airplane mode and retry.",
-      "createdAt": "2026-05-07T10:00:00Z"
-    },
-    {
-      "id": 2,
-      "ticketId": 3,
-      "authorId": 3,
-      "content": "Reproduced on Safari 17.4. Looks like a flexbox issue with our chart container. Investigating.",
-      "createdAt": "2026-05-06T14:30:00Z"
-    },
-    {
-      "id": 3,
-      "ticketId": 3,
-      "authorId": 3,
-      "content": "Found it — `display: contents` not respected in Safari for our wrapper div. Patch coming this week.",
-      "createdAt": "2026-05-07T08:00:00Z"
-    },
     {
       "id": 4,
       "ticketId": 5,
